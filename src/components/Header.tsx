@@ -1,14 +1,32 @@
-import { useMemo } from "react"
+import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
+import { useAppStore } from "../stores/useAppStore"
 
 export const Header = () => {
 
+    const [searchFilters, setSearchFilters] = useState({
+        ingredient: '',
+        category: ''
+    })
     const { pathname } = useLocation()
-
     const isHome = useMemo(() => pathname === '/', [pathname])
 
+    const fecthCategories = useAppStore(state => state.fetchCategories)
+    const categories = useAppStore(state => state.categories)
+
+    useEffect(() => {
+        fecthCategories()
+    }, [])
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+        setSearchFilters({
+            ...searchFilters,
+            [e.target.name]: e.target.value
+        })
+    }
+
     return (
-        <header className="bg-slate-800">
+        <header className={isHome ? 'bg-header bg-center bg-cover' : 'bg-slate-800'}>
             <div className="mx-auto container px-5 py-16">
                 <div className="flex justify-between items-center">
                     <div>
@@ -39,6 +57,8 @@ export const Header = () => {
                                 name="ingredient"
                                 className="p-3 w-full rounded-lg focus:outline-none"
                                 placeholder="Nombre o ingrediente"
+                                onChange={handleChange}
+                                value={searchFilters.ingredient}
                             />
                         </div>
                         <div className="space-y-4">
@@ -49,10 +69,19 @@ export const Header = () => {
                             </label>
                             <select
                                 id="category"
-                                name="ingrcategoryedient"
+                                name="category"
                                 className="p-3 w-full rounded-lg focus:outline-none"
+                                onChange={handleChange}
+                                value={searchFilters.category}
                             >
                                 <option>Seleccione:</option>
+                                {
+                                    categories.drinks.map((ca) => (
+                                        <option key={ca.strCategory} value={ca.strCategory}>
+                                            {ca.strCategory}
+                                        </option>
+                                    ))
+                                }
                             </select>
                         </div>
                         <input
