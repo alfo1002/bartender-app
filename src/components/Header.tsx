@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useMemo, useState } from "react"
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
 import { useAppStore } from "../stores/useAppStore"
 
@@ -13,6 +13,7 @@ export const Header = () => {
 
     const fecthCategories = useAppStore(state => state.fetchCategories)
     const categories = useAppStore(state => state.categories)
+    const searchRecipes = useAppStore(state => state.searchRecipes)
 
     useEffect(() => {
         fecthCategories()
@@ -23,6 +24,17 @@ export const Header = () => {
             ...searchFilters,
             [e.target.name]: e.target.value
         })
+    }
+
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if (Object.values(searchFilters).includes('')) {
+            console.log('Todos los campos son obligatorios')
+            return
+        }
+
+        //Consultar la API
+        searchRecipes(searchFilters)
     }
 
     return (
@@ -44,7 +56,7 @@ export const Header = () => {
                     </nav>
                 </div>
                 {isHome && (
-                    <form className="md:w-1/2 2xl:w-1/3 bg-orange-400 my-32 p-10 rounded-lg shadow space-y-6">
+                    <form onSubmit={handleSubmit} className="md:w-1/2 2xl:w-1/3 bg-orange-400 my-32 p-10 rounded-lg shadow space-y-6">
                         <div className="space-y-4">
                             <label
                                 htmlFor="ingredient"
